@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>IA Quest</title>
-<meta name="description" content="RPG de aprendizaje: colecciona herramientas y conceptos de IA, sube de nivel y llega a Vibe God.">
+<meta name="description" content="IA Quest: RPG de aprendizaje del Taller de IA para la Productividad, UCN, octubre 2026. Colecciona herramientas y conceptos de IA, cumple misiones y gana medallas.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
@@ -198,6 +198,35 @@ dialog::backdrop{background:#000a}
 .rank.me::after{content:"📍 TÚ ESTÁS AQUÍ";position:absolute;top:-11px;right:10px;font-family:var(--px);font-size:.45rem;background:var(--gold);color:#1b1000;border:3px solid #000;padding:4px 6px}
 .endcta{text-align:center;margin-top:22px}
 
+
+/* CTA, sticky, enlaces internos, footer */
+section.zone{scroll-margin-top:84px}
+.ctas{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin:22px 0 10px}
+.cta-main{font-family:var(--px);font-size:.7rem;line-height:1.5;background:var(--gold);color:#1b1000;border:4px solid #000;padding:15px 20px;cursor:pointer;box-shadow:4px 4px 0 #000}
+.cta-main:hover{filter:brightness(1.08)}
+.cta-main:active{transform:translate(3px,3px);box-shadow:none}
+.cta-alt{font-family:var(--px);font-size:.6rem;line-height:1.5;background:var(--panel);color:var(--txt);border:4px solid var(--line);padding:15px 16px;cursor:pointer;box-shadow:4px 4px 0 #000}
+.cta-alt:hover{border-color:var(--gold)}
+.promise{margin:0 0 6px;font-size:.92rem;color:var(--xp)}
+.sticky{position:fixed;left:0;right:0;bottom:0;z-index:30;display:none;align-items:center;justify-content:space-between;gap:12px;padding:10px 16px calc(10px + env(safe-area-inset-bottom,0px));background:#0a0d1cf5;border-top:3px solid var(--line);transform:translateY(115%);transition:transform .25s}
+.sticky.show{transform:none}
+.sticky .si{font-family:var(--px);font-size:.5rem;line-height:1.7;color:var(--mut)}
+.sticky .si b{display:block;color:var(--gold)}
+.sticky .cta-main{font-size:.6rem;padding:12px 14px;flex:none}
+.nextz{margin-top:22px;text-align:right}
+.nextlink{display:inline-block;font-family:var(--px);font-size:.55rem;line-height:1.6;color:var(--txt);background:var(--panel);border:3px solid var(--line);padding:10px 12px;box-shadow:3px 3px 0 #000}
+.nextlink:hover{border-color:var(--gold);text-decoration:none}
+.flash{animation:flash 1.8s}
+@keyframes flash{0%,60%{box-shadow:0 0 0 4px var(--gold),3px 3px 0 #000}100%{box-shadow:3px 3px 0 #000}}
+footer.foot{margin-top:60px;padding:32px 0 44px;border-top:3px solid var(--line);text-align:center;color:var(--mut)}
+.foot img{display:block;margin:0 auto 16px;width:min(340px,80%);height:auto}
+.foot .taller{font-family:var(--px);font-size:.55rem;line-height:2;color:var(--txt);margin:0 0 6px}
+.foot .meta{font-size:.85rem;margin:6px 0}
+.flinks{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:center;margin:16px 0}
+.flinks a{font-size:.88rem}
+@media(max-width:720px){.sticky{display:flex}body{padding-bottom:86px}#toast{bottom:96px}.nextz{text-align:center}}
+@media(prefers-reduced-motion:reduce){.flash{animation:none}.sticky{transition:none}}
+
 /* Toast */
 #toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,40px);opacity:0;pointer-events:none;z-index:50;
   font-family:var(--px);font-size:.6rem;background:#000;color:var(--xp);border:3px solid var(--xp);padding:12px 14px;transition:all .25s;max-width:92vw;text-align:center;line-height:1.6}
@@ -230,6 +259,11 @@ footer{margin-top:60px;padding:28px 0 56px;border-top:3px solid var(--line);colo
     <span class="tag">▶ NUEVA PARTIDA</span>
     <h1>IA <em>QUEST</em><br>de Principiante a Vibe God</h1>
     <p>Recorre las zonas, recoge herramientas y pergaminos, completa misiones y gana la medalla de cada nivel. Empieza en la academia y llega hasta el cielo.</p>
+    <div class="ctas">
+      <button class="cta-main" id="cta-main" data-nav="cta">▶ COMENZAR LA AVENTURA</button>
+      <button class="cta-alt" data-nav="story">📖 LEER LA HISTORIA</button>
+    </div>
+    <p class="promise">💬 Resolvemos tus dudas durante el taller.</p>
     <div class="legend">
       <span>⭐ <b style="color:var(--gold)">Dificultad</b>: qué tan difícil es dominarlo</span>
       <span>⚔️ <b style="color:var(--red)">Daño</b>: cuánto poder te da al construir</span>
@@ -259,7 +293,23 @@ footer{margin-top:60px;padding:28px 0 56px;border-top:3px solid var(--line);colo
 <main class="wrap" id="app"></main>
 <main class="wrap" id="storyMain" hidden></main>
 
-<footer><div class="wrap">Hecho para estudiantes · Tu mochila se guarda en este navegador.</div></footer>
+<footer class="foot"><div class="wrap">
+  <img src="science-up.png" width="1668" height="429" alt="Science Up · Consorcio Ciencia 2030 · PUCV, USACH, UCN" loading="lazy">
+  <p class="taller">TALLER DE IA PARA LA PRODUCTIVIDAD<br>UCN · OCTUBRE 2026</p>
+  <p class="meta">Material de apoyo para los estudiantes del taller.</p>
+  <nav class="flinks" aria-label="Enlaces internos">
+    <a href="#aldea" data-nav="aldea">Academia</a>
+    <a href="#z1" data-nav="z1">Pradera</a>
+    <a href="#z2" data-nav="z2">Ciudad</a>
+    <a href="#z3" data-nav="z3">Panteón</a>
+    <a href="#z4" data-nav="z4">Cielo</a>
+    <a href="#extra" data-nav="extra">Extras</a>
+    <a href="#maestro" data-nav="maestro">Maestro</a>
+    <a href="#historia" data-nav="story">Historia de la IA</a>
+    <a href="gracias.html">Terminé el taller</a>
+  </nav>
+  <p class="meta">💬 Resolvemos tus dudas durante el taller · Tu progreso se guarda en este navegador.</p>
+</div></footer>
 <dialog id="dlg" aria-labelledby="dlg-t"><div class="dlg-in" id="dlg-in">
   <button class="x" id="dlg-x" aria-label="Cerrar">✕</button>
   <div class="dh"><div class="ico" id="dlg-ico" aria-hidden="true"></div><div><h3 id="dlg-t"></h3><span class="rar" id="dlg-r"></span></div></div>
@@ -267,6 +317,10 @@ footer{margin-top:60px;padding:28px 0 56px;border-top:3px solid var(--line);colo
   <div id="dlg-body"></div>
   <div class="row" id="dlg-act"></div>
 </div></dialog>
+<div class="sticky" id="sticky" role="region" aria-label="Acción principal">
+  <div class="si"><b id="sticky-info">NV 1</b>Taller IA · UCN</div>
+  <button class="cta-main" id="sticky-cta" data-nav="cta">▶ COMENZAR</button>
+</div>
 <div id="toast" role="status" aria-live="polite"></div>
 
 <script>
@@ -282,6 +336,7 @@ const ZONES=[
    ['chatgpt','💬','ChatGPT','https://chatgpt.com','IA · Chat',1,4,'El chat de OpenAI. Ideal para escribir, estudiar y resolver dudas.',['OpenAI Academy','https://academy.openai.com']],
    ['gemini','✨','Gemini','https://gemini.google.com','IA · Chat',1,3,'La IA de Google, integrada con Gmail, Drive y Docs.',['Google AI Skills','https://grow.google/ai-skills/']],
    ['perplexity','🔎','Perplexity','https://www.perplexity.ai','IA · Búsqueda',1,3,'Buscador con IA que responde citando sus fuentes.'],
+   ['granola','🥣','Granola','https://www.granola.ai','Notas de reuniones',1,3,'Toma notas de tus reuniones y las convierte en apuntes ordenados con IA.'],
    ['genspark','⚡','Genspark','https://www.genspark.ai','Agentes',1,4,'Súper agente: investiga, crea presentaciones y sitios por ti.'],
    ['grok','🌀','Grok','https://grok.com','Agentes · Chat',2,3,'El modelo de xAI con búsqueda en tiempo real.'],
    ['deepseek','🐋','DeepSeek','https://chat.deepseek.com','Modelos',1,3,'Modelo potente y económico, bueno para razonar y programar.'],
@@ -383,7 +438,7 @@ const MEDALS={
   ['Completa un curso corto','Termina un curso introductorio, por ejemplo Claude 101 o AI Essentials.'],
   ['Mira un video del maestro','Entra al canal @bencord y mira un tutorial completo.']]},
  z1:{icon:'🥉',name:'Medalla del Escriba',xp:20,missions:[
-  ['Sintetiza y redacta notas','Convierte notas en borrador, ideas sueltas o apuntes de una reunión en un correo estructurado o un reporte ejecutivo corto.'],
+  ['Sintetiza y redacta notas','Convierte notas en borrador, ideas sueltas o apuntes de una reunión (por ejemplo, tomados con Granola) en un correo estructurado o un reporte ejecutivo corto.'],
   ['Escribe un correo ejecutivo','Menos de 250 palabras, tono profesional, encabezados claros y una sección obligatoria de Próximos Pasos con responsables asignados.'],
   ['Analiza el proceso antes de enviar','Pídele a la IA que revise tu borrador, detecte si falta información crítica y te haga preguntas aclaratorias antes del documento final.']]},
  z2:{icon:'🥈',name:'Medalla del Creador',xp:30,missions:[
@@ -408,6 +463,8 @@ const MEDALS={
   ['Automatiza tus redes','Crea un flujo (Make, Zapier o n8n) que prepare y programe tus publicaciones, con revisión humana antes de publicar.'],
   ['Prueba una IA nueva','Elige una IA que nunca hayas usado (Grok, DeepSeek, Genspark, Perplexity…) y compárala con tu favorita en una misma tarea.']]}
 };
+const NEXT={aldea:['z1','🌱 Pradera del Principiante'],z1:['z2','🏙️ Ciudad de los Agentes'],z2:['z3','🏛️ Panteón de la Orquestación'],z3:['z4','🔮 Cielo del Vibe God'],z4:['extra','🧭 Misiones Secundarias'],extra:['maestro','🧙 Santuario del Maestro']};
+const nextLink=id=>NEXT[id]?`<div class="nextz"><a class="nextlink" href="#${NEXT[id][0]}" data-nav="${NEXT[id][0]}">SIGUIENTE: ${NEXT[id][1]} ↓</a></div>`:'';
 function missionsHTML(zid,title){
   const M=MEDALS[zid];
   return `<div class="sub-h">${title||'⚔️ MISIONES · GANA LA MEDALLA'}</div>
@@ -513,6 +570,8 @@ const RANKS=[
  {ic:'⚔️',txt:'Un aventurero ya debería tener flujos en loop.'},
  {ic:'🔥',txt:'Un crack ya hace todo con IA.'}
 ];
+const ORDER=['aldea','z1','z2','z3','z4','story','extra'];
+const CTA_LBL={start:['▶ COMENZAR LA AVENTURA','▶ COMENZAR'],next:['▶ SEGUIR CON LA MISIÓN','▶ SEGUIR MISIÓN'],done:['🏁 TERMINÉ EL TALLER','🏁 TERMINAR']};
 const TITLES=['Aprendiz','Iniciado','Explorador','Aventurero','Crack'];
 const STEP=400, RARN={common:'COMÚN',rare:'RARO',epic:'ÉPICO',legend:'LEGENDARIO'};
 const SCROLL_ICONS=['📜','📜','📜','📜'];
@@ -529,6 +588,7 @@ const MORE={
 'deepseek':["DeepSeek es una familia de modelos de IA conocida por razonar bien y tener un costo bajo. Existen versiones abiertas que se pueden usar en otras plataformas.","Úsalo para problemas de lógica, matemáticas o código, y para comparar sus respuestas con las de otros modelos.","Antes de subir datos privados a cualquier app, revisa su política de privacidad."],
 'lovable':["Lovable es una plataforma de vibecoding: describes tu app en español y genera el frontend, la base de datos y el login por ti.","Empieza con una idea pequeña, como una lista de tareas o un portafolio, y ve pidiendo cambios en el chat. Se conecta con GitHub y Supabase.","Los cambios pequeños y claros funcionan mejor que pedir todo de una sola vez."],
 'bolt':["Bolt (bolt.new) genera, ejecuta y publica apps web desde el navegador a partir de un prompt, sin instalar nada.","Pídele una landing, una calculadora o un mini juego, pruébalo en vivo y afínalo con más instrucciones.","Cuando algo te guste, guarda o exporta el proyecto para no perder avances."],
+'granola':["Granola es un bloc de notas con IA para personas con reuniones seguidas. Transcribe el audio de tu propio equipo mientras tú escribes tus notas y luego las mejora y las ordena.","Escribe notas rápidas durante la reunión y al terminar pídele un resumen, las acciones pendientes y un borrador de correo. Funciona con Zoom, Google Meet, Teams y reuniones presenciales, sin agregar un bot a la llamada.","Avisa a los participantes que estás transcribiendo y respeta las reglas de privacidad de tu organización."],
 'eleven':["ElevenLabs genera voces sintéticas muy realistas a partir de texto y permite doblar o clonar voces.","Úsalo para narrar videos, hacer podcasts o darle voz a un agente.","Clona únicamente voces propias o con permiso explícito de la persona."],
 'mj':["Midjourney crea imágenes artísticas a partir de descripciones de texto y destaca por su estilo y estética.","Describe sujeto, estilo, luz y ambiente. Ejemplo: retrato de un robot jardinero, acuarela, luz de atardecer.","Si vas a usar las imágenes con fines comerciales, revisa primero los términos de uso."],
 'claudecode':["Claude Code es un agente de programación que vive en tu terminal (y en otros entornos): lee tu proyecto, edita archivos y corre comandos y tests.","Entra a la carpeta de tu proyecto y pídele cosas como agrega un login o arregla este error. Se personaliza con CLAUDE.md, skills, hooks y sub-agentes.","Revisa los cambios con git antes de aceptarlos: tú sigues siendo quien decide."],
@@ -629,6 +689,7 @@ html+=`<section class="zone" id="aldea">
  <div class="sub-h">📚 TOMOS DE SABIDURÍA (ACADEMIAS)</div>
  <div class="grid">${TOMES.map(t=>card({id:t[0],emoji:t[1],name:t[2],url:t[3],tag:t[4],d:t[5],x:t[6],desc:t[7],rar:'rare',xp:20})).join('')}</div>
  ${missionsHTML('aldea')}
+ ${nextLink('aldea')}
 </section>`;
 
 ZONES.forEach(z=>{
@@ -640,12 +701,14 @@ ZONES.forEach(z=>{
    <div class="sub-h">🎒 ÍTEMS · HERRAMIENTAS</div><div class="grid">${tools}</div>
    <div class="sub-h">📜 PERGAMINOS · CONCEPTOS</div><div class="grid">${scrolls}</div>
    ${missionsHTML(z.id)}
+   ${nextLink(z.id)}
   </section>`;
 });
 // Misiones secundarias
 html+=`<section class="zone" id="extra">
  <div class="zone-head"><span class="ic">🧭</span><div><h2>Tablón de Misiones Secundarias</h2><p>Retos extra, sin orden fijo. Dan XP y una medalla especial si cumples todos.</p></div></div>
  ${missionsHTML('extra','🧭 RETOS EXTRA · GANA LA MEDALLA DEL EXPLORADOR')}
+ ${nextLink('extra')}
 </section>`;
 
 // Final: el maestro
@@ -657,6 +720,7 @@ html+=`<section class="zone" id="maestro">
    <div class="chips"><span>Claude Code</span><span>Agentes</span><span>Automatizaciones</span><span>Vibe coding</span><span>Comunidad: Imperio Agéntico</span></div>
    <a class="cta" href="https://www.youtube.com/@bencord" target="_blank" rel="noopener">▶ HABLAR CON EL MAESTRO</a>
  </div></div>
+ <div class="endcta"><a class="cta" href="gracias.html">🏁 TERMINÉ EL TALLER</a></div>
 </section>`;
 app.innerHTML=html;
 document.getElementById('storyMain').innerHTML=storyHTML();
@@ -680,7 +744,7 @@ function paint(){
     if(on)xp+=byId[id].xp;
   });
   // misiones y medallas
-  let medals=0;const mh=[];
+  let medals=0;const mh=[];const ek=[];
   Object.entries(MEDALS).forEach(([z,M])=>{
     let n=0;
     M.missions.forEach((m,i)=>{
@@ -690,7 +754,7 @@ function paint(){
       if(on){n++;xp+=M.xp}
     });
     const earned=n===M.missions.length;
-    if(earned)medals++;
+    if(earned){medals++;ek.push(z)}
     $('mc-'+z).classList.toggle('on',earned);
     $('mp-'+z).textContent=earned?'¡MEDALLA CONSEGUIDA!':n+'/'+M.missions.length+' MISIONES';
     mh.push(`<span class="md${earned?' on':''}" title="${M.name}${earned?' ✓':''}">${M.icon}</span>`);
@@ -710,6 +774,9 @@ function paint(){
     const items=[...document.querySelectorAll(z==='aldea'?'#aldea .item':'#'+z+' .item')];
     p.textContent=items.filter(i=>i.classList.contains('got')).length+'/'+items.length;
   });
+  $('sticky-info').textContent='NV '+lv+' · '+xp+' XP';
+  updateCta();
+  try{localStorage.setItem('ia-quest-prog',JSON.stringify({xp,lv,title:TITLES[lv-1],icon:RANKS[lv-1].ic,items:got.size,total:ALL.length,medals,earnedKeys:ek,mtotal:Object.keys(MEDALS).length,missions:doneM.size,mmax:Object.values(MEDALS).reduce((a,M)=>a+M.missions.length,0)}))}catch(e){}
   return {xp,lv,medals};
 }
 
@@ -771,6 +838,47 @@ $('dlg-act').addEventListener('click',e=>{
   toggle(b.dataset.id);
   b.textContent=got.has(b.dataset.id)?'✓ EN MOCHILA':'🎒 RECOGER';
 });
+
+/* ---------- CTA dinámico ---------- */
+function nextTarget(){
+  const any=got.size>0||doneM.size>0;
+  for(const z of ORDER){
+    const M=MEDALS[z];
+    for(let i=0;i<M.missions.length;i++){
+      const id=z+'-m'+i;
+      if(!doneM.has(id))return {key:any?'next':'start',z,id};
+    }
+  }
+  return {key:'done'};
+}
+function updateCta(){
+  const t=nextTarget();
+  const a=$('cta-main'),b=$('sticky-cta');
+  if(a)a.textContent=CTA_LBL[t.key][0];
+  if(b)b.textContent=CTA_LBL[t.key][1];
+}
+function ctaGo(){
+  const t=nextTarget();
+  if(t.key==='done'){location.href='gracias.html';return}
+  showTab(t.z==='story'?'story':'adv');
+  setTimeout(()=>{
+    const el=document.querySelector('.mission[data-m="'+t.id+'"]');
+    if(!el)return;
+    if(el.scrollIntoView)el.scrollIntoView({behavior:'smooth',block:'center'});
+    el.classList.add('flash');setTimeout(()=>el.classList.remove('flash'),1900);
+  },60);
+}
+document.addEventListener('click',e=>{
+  const n=e.target.closest('[data-nav]');if(!n)return;
+  e.preventDefault();
+  const t=n.dataset.nav;
+  if(t==='cta'){ctaGo();return}
+  if(t==='story'){showTab('story');return}
+  showTab('adv');
+  setTimeout(()=>{const el=document.getElementById(t);if(el&&el.scrollIntoView)el.scrollIntoView({behavior:'smooth',block:'start'})},40);
+});
+window.addEventListener('scroll',()=>{$('sticky').classList.toggle('show',window.scrollY>320)},{passive:true});
+
 function showTab(t){
   const st=t==='story';
   $('app').hidden=st;$('zonenav').hidden=st;$('storyMain').hidden=!st;

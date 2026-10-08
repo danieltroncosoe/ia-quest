@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>IA Quest</title>
+<meta name="description" content="RPG de aprendizaje: colecciona herramientas y conceptos de IA, sube de nivel y llega a Vibe God.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+<style>
+:root{
+  color-scheme:dark;
+  --bg:#0a0d1c;--panel:#141a33;--panel2:#1b2344;--line:#2c3764;--txt:#eaf0ff;--mut:#9aa8d0;
+  --gold:#ffd23f;--red:#ff4d5e;--xp:#7cf5a0;--acc:#ff9f1c;
+  --common:#8fa3c9;--rare:#4da3ff;--epic:#b57bff;--legend:#ffb020;
+  --px:'Press Start 2P',ui-monospace,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-size:16px;color:var(--txt);font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;line-height:1.5;
+  background:
+   radial-gradient(1px 1px at 20% 30%,#fff8 50%,transparent 51%),
+   radial-gradient(1px 1px at 70% 60%,#fff6 50%,transparent 51%),
+   radial-gradient(1.5px 1.5px at 40% 80%,#fff5 50%,transparent 51%),
+   linear-gradient(#0a0d1c,#0d1330 60%,#0a0d1c);
+  background-size:220px 220px,300px 300px,260px 260px,100% 100%;background-color:var(--bg);}
+a{color:var(--rare);text-decoration:none}a:hover{text-decoration:underline}
+.wrap{max-width:1040px;margin:0 auto;padding:0 16px}
+.px{font-family:var(--px)}
+
+/* HUD */
+.hud{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:#0a0d1ce6;backdrop-filter:blur(6px);border-bottom:3px solid var(--line)}
+.hud .wrap{display:flex;gap:14px;align-items:center;padding-top:10px;padding-bottom:10px;flex-wrap:wrap}
+.hero{display:flex;align-items:center;gap:10px;min-width:210px}
+.avatar{width:42px;height:42px;display:grid;place-items:center;font-size:24px;background:var(--panel2);border:3px solid var(--gold);box-shadow:3px 3px 0 #000}
+.lv{font-family:var(--px);font-size:.62rem;line-height:1.5}
+.lv b{color:var(--gold);display:block}
+.bars{flex:1;min-width:200px}
+.bar{height:14px;background:#050711;border:3px solid var(--line);position:relative;box-shadow:inset 0 0 0 2px #000}
+.bar i{display:block;height:100%;background:repeating-linear-gradient(90deg,var(--xp) 0 8px,#52d680 8px 10px);width:0;transition:width .5s}
+.bar-lbl{font-family:var(--px);font-size:.5rem;color:var(--mut);margin-top:5px;display:flex;justify-content:space-between}
+.inv{font-family:var(--px);font-size:.6rem;text-align:right}
+.inv b{color:var(--gold)}
+.btn-reset{font-family:var(--px);font-size:.5rem;background:transparent;color:var(--mut);border:2px solid var(--line);padding:6px 8px;cursor:pointer}
+.btn-reset:hover{color:var(--red);border-color:var(--red)}
+
+/* Hero header */
+header.top{text-align:center;padding:46px 0 26px}
+header.top .tag{font-family:var(--px);font-size:.6rem;color:var(--acc);letter-spacing:.1em}
+h1{font-family:var(--px);font-size:clamp(1.3rem,5.2vw,2.4rem);line-height:1.35;margin:14px 0;text-shadow:4px 4px 0 #000}
+h1 em{font-style:normal;color:var(--gold)}
+header.top p{max-width:640px;margin:0 auto 18px;color:var(--mut);font-size:1.05rem}
+.legend{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:12px}
+.legend span{font-size:.78rem;border:2px solid var(--line);background:var(--panel);padding:3px 9px}
+nav.zones{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:18px}
+nav.zones a{font-family:var(--px);font-size:.55rem;color:var(--txt);background:var(--panel);border:3px solid var(--line);padding:9px 10px;box-shadow:3px 3px 0 #000}
+nav.zones a:hover{border-color:var(--gold);text-decoration:none;transform:translateY(-1px)}
+
+/* Zones */
+section.zone{margin-top:34px}
+.zone-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 16px;background:var(--panel);border:3px solid var(--line);box-shadow:4px 4px 0 #000}
+.zone-head .ic{font-size:30px}
+.zone-head h2{font-family:var(--px);font-size:clamp(.8rem,2.6vw,1.1rem);margin:0;line-height:1.5}
+.zone-head p{margin:2px 0 0;color:var(--mut);font-size:.9rem}
+.zone-head .prog{margin-left:auto;font-family:var(--px);font-size:.6rem;color:var(--gold)}
+.sub-h{font-family:var(--px);font-size:.62rem;color:var(--mut);margin:22px 0 10px;letter-spacing:.05em}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(285px,1fr));gap:14px}
+
+/* Item card */
+.item{--rc:var(--common);display:flex;gap:12px;padding:12px;background:var(--panel);border:3px solid var(--rc);box-shadow:4px 4px 0 #000;position:relative;transition:transform .12s,box-shadow .12s}
+.item:hover{transform:translate(-1px,-2px);box-shadow:6px 6px 0 #000}
+.item.r-rare{--rc:var(--rare)}.item.r-epic{--rc:var(--epic)}.item.r-legend{--rc:var(--legend)}
+.item.r-legend{box-shadow:4px 4px 0 #000,0 0 18px #ffb02033}
+.ico{flex:none;width:54px;height:54px;display:grid;place-items:center;font-size:28px;background:var(--panel2);border:3px solid var(--rc);box-shadow:inset 0 0 0 2px #000}
+.body{flex:1;min-width:0}
+.item h4{margin:0;font-size:1.02rem;line-height:1.25}
+.item h4 a{color:var(--txt)}
+.rar{font-family:var(--px);font-size:.45rem;color:var(--rc);display:block;margin:4px 0 2px}
+.item p{margin:4px 0 8px;color:var(--mut);font-size:.88rem}
+.stat{display:flex;align-items:center;gap:8px;font-size:.78rem;line-height:1.5}
+.stat .l{width:68px;color:var(--mut)}
+.st{letter-spacing:2px;font-size:.95rem}
+.st.d b{color:var(--gold)}.st.x b{color:var(--red)}
+.st s{text-decoration:none;color:#34406e}
+.row{display:flex;gap:8px;align-items:center;justify-content:space-between;margin-top:10px;flex-wrap:wrap}
+.learn{font-size:.78rem;color:var(--xp)}
+.take{font-family:var(--px);font-size:.5rem;background:var(--acc);color:#1b1000;border:3px solid #000;padding:8px 10px;cursor:pointer;box-shadow:2px 2px 0 #000}
+.take:hover{filter:brightness(1.12)}
+.take:active{transform:translate(2px,2px);box-shadow:none}
+.item.got{background:#12261f}
+.item.got .take{background:var(--xp)}
+.item.got::after{content:"✓";position:absolute;top:-10px;left:-8px;background:var(--xp);color:#04230f;font-weight:900;width:24px;height:24px;display:grid;place-items:center;border:3px solid #000}
+
+/* NPC */
+.npc{display:flex;gap:16px;align-items:flex-start;padding:16px;background:linear-gradient(135deg,#1b2344,#2b1d12);border:3px solid var(--acc);box-shadow:4px 4px 0 #000}
+.npc .face{font-size:48px;line-height:1}
+.npc h3{font-family:var(--px);font-size:.8rem;margin:0 0 8px;line-height:1.5}
+.npc .say{background:#050711;border:3px solid var(--line);padding:10px 12px;color:var(--txt);font-size:.92rem;margin:0 0 10px}
+.chips{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+.chips span{font-size:.75rem;border:2px solid var(--line);padding:2px 8px;color:var(--mut)}
+.cta{display:inline-block;font-family:var(--px);font-size:.55rem;background:var(--gold);color:#1b1000;border:3px solid #000;padding:10px 12px;box-shadow:3px 3px 0 #000}
+.cta:hover{text-decoration:none;filter:brightness(1.1)}
+
+
+/* ? button + modal */
+.qm{position:absolute;top:8px;right:8px;width:26px;height:26px;display:grid;place-items:center;font-family:var(--px);font-size:.6rem;color:var(--txt);background:var(--panel2);border:3px solid var(--rc);cursor:pointer;padding:0}
+.qm:hover,.qm:focus-visible{background:var(--rc);color:#000}
+.item h4{padding-right:30px}
+dialog{padding:0;border:0;background:transparent;color:var(--txt);max-width:min(560px,94vw);width:100%}
+dialog::backdrop{background:#000a}
+.dlg-in{--rc:var(--common);position:relative;background:var(--panel);border:4px solid var(--rc);box-shadow:6px 6px 0 #000;padding:18px;max-height:88vh;overflow:auto}
+.dlg-in.r-rare{--rc:var(--rare)}.dlg-in.r-epic{--rc:var(--epic)}.dlg-in.r-legend{--rc:var(--legend)}
+.dlg-in .x{position:absolute;top:10px;right:10px;font-family:var(--px);font-size:.6rem;background:var(--panel2);color:var(--txt);border:3px solid var(--line);width:30px;height:30px;cursor:pointer}
+.dlg-in .x:hover{border-color:var(--red);color:var(--red)}
+.dh{display:flex;gap:12px;align-items:center;margin-bottom:12px;padding-right:36px}
+.dh h3{margin:0;font-size:1.2rem;line-height:1.25}
+.dsec{margin:14px 0 0}
+.dsec h5{font-family:var(--px);font-size:.55rem;margin:0 0 6px;color:var(--gold);line-height:1.6}
+.dsec p{margin:0;font-size:.95rem;color:var(--txt)}
+.dsec.tip{background:#12261f;border:3px solid var(--xp);padding:10px 12px}
+.dsec.tip h5{color:var(--xp)}
+.dlg-in .row{margin-top:18px}
+.dlg-in .open{font-size:.85rem}
+
+
+/* Misiones y medallas */
+.medals{display:flex;gap:6px}
+.md{width:30px;height:30px;display:grid;place-items:center;font-size:17px;background:#050711;border:3px solid var(--line);filter:grayscale(1);opacity:.4;transition:all .3s}
+.md.on{filter:none;opacity:1;border-color:var(--gold);box-shadow:0 0 10px #ffd23f55}
+.quest{display:grid;gap:10px}
+.medal-card{display:flex;align-items:center;gap:12px;padding:12px 14px;background:var(--panel);border:3px dashed var(--line);box-shadow:4px 4px 0 #000}
+.medal-card .mi{font-size:34px;filter:grayscale(1);opacity:.45;transition:all .3s}
+.medal-card b{display:block;font-size:1rem}
+.medal-card .mp{font-family:var(--px);font-size:.5rem;color:var(--mut)}
+.medal-card.on{border:3px solid var(--gold);background:#2a2410;box-shadow:4px 4px 0 #000,0 0 18px #ffd23f33}
+.medal-card.on .mi{filter:none;opacity:1}
+.medal-card.on .mp{color:var(--gold)}
+.mlist{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.mission{display:flex;gap:12px;align-items:flex-start;padding:10px 12px;background:var(--panel);border:3px solid var(--line);box-shadow:3px 3px 0 #000}
+.mission b{display:block;font-size:.95rem}
+.mission span{display:block;color:var(--mut);font-size:.85rem}
+.mission em{margin-left:auto;font-style:normal;font-family:var(--px);font-size:.5rem;color:var(--xp);white-space:nowrap;padding-top:4px}
+.mchk{flex:none;width:28px;height:28px;background:#050711;border:3px solid var(--line);color:#04230f;font-weight:900;cursor:pointer;padding:0;font-size:1rem}
+.mchk:hover{border-color:var(--xp)}
+.mission.done{background:#12261f;border-color:var(--xp)}
+.mission.done .mchk{background:var(--xp);border-color:#000}
+.mission.done b{text-decoration:line-through;text-decoration-color:#7cf5a088}
+
+
+/* Tabs + Historia */
+[hidden]{display:none!important}
+.tabs{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;padding:0 16px;margin:4px 0 0}
+.tab{font-family:var(--px);font-size:.6rem;color:var(--mut);background:var(--panel);border:3px solid var(--line);padding:13px 15px;cursor:pointer;box-shadow:3px 3px 0 #000}
+.tab:hover{border-color:var(--gold);color:var(--txt)}
+.tab.on{color:#1b1000;background:var(--gold);border-color:#000}
+.story-intro{text-align:center;padding:30px 0 6px}
+.story-intro h2{font-family:var(--px);font-size:clamp(.95rem,3.6vw,1.5rem);line-height:1.5;margin:0 0 10px;text-shadow:3px 3px 0 #000}
+.story-intro p{color:var(--mut);max-width:620px;margin:0 auto}
+.ladder{display:flex;flex-wrap:wrap;gap:6px;align-items:center;justify-content:center;margin:20px 0 6px}
+.ladder button{font-family:inherit;font-size:.78rem;color:var(--txt);background:var(--panel);border:3px solid var(--line);padding:6px 9px;cursor:pointer}
+.ladder button:hover{border-color:var(--gold)}
+.ladder i{font-style:normal;color:var(--gold)}
+.ladder .goal{border-color:var(--gold);background:#2a2410}
+.acts{display:grid;gap:30px;margin-top:26px}
+.caps{display:grid;gap:12px;margin-top:14px}
+.cap{scroll-margin-top:96px;display:flex;gap:14px;padding:14px;background:var(--panel);border:3px solid var(--line);box-shadow:4px 4px 0 #000}
+.cap .num{flex:none;width:54px;text-align:center;font-family:var(--px);font-size:.5rem;color:var(--mut);line-height:1.8}
+.cap .num span{display:block;font-size:1.7rem;font-family:inherit;margin-top:2px}
+.cap h4{margin:0 0 6px;font-size:1.08rem}
+.cap p{margin:0 0 10px;font-size:.97rem}
+.learned{background:#12261f;border:3px solid var(--xp);padding:8px 10px;font-size:.88rem;margin-bottom:10px}
+.learned b{color:var(--xp)}
+.chips2{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:inherit;font-size:.75rem;color:var(--txt);background:var(--panel2);border:2px solid var(--line);padding:3px 8px;cursor:pointer}
+.chip:hover{border-color:var(--rare);color:var(--rare)}
+.act-done{margin-top:14px}
+.cycle{margin-top:34px;padding:18px;background:linear-gradient(135deg,#1b2344,#102a1f);border:3px solid var(--xp);box-shadow:4px 4px 0 #000;text-align:center}
+.cycle h3{font-family:var(--px);font-size:.75rem;line-height:1.6;margin:0 0 12px}
+.cyc{display:flex;flex-wrap:wrap;gap:10px;align-items:center;justify-content:center}
+.cyc div{background:#050711;border:3px solid var(--line);padding:10px 14px;font-size:.92rem;max-width:240px}
+.cyc div b{display:block}
+.cyc .ar{border:0;background:none;font-size:1.6rem;padding:0;color:var(--xp)}
+.cycle p{margin:14px 0 14px;color:var(--mut);font-size:.92rem}
+
+
+.epilogue{margin-top:34px}
+.ranks{display:grid;gap:10px;margin-top:14px}
+.rank{display:flex;gap:14px;align-items:center;padding:12px 14px;background:var(--panel);border:3px solid var(--line);box-shadow:3px 3px 0 #000;position:relative}
+.rank .ri{flex:none;width:48px;height:48px;display:grid;place-items:center;font-size:26px;background:var(--panel2);border:3px solid var(--line)}
+.rank b{display:block;font-family:var(--px);font-size:.62rem;line-height:1.7;color:var(--gold)}
+.rank span{display:block;font-size:.97rem}
+.rank em{font-style:normal;font-family:var(--px);font-size:.45rem;color:var(--mut)}
+.rank.past{border-color:#2e5a45}
+.rank.past .ri{border-color:var(--xp)}
+.rank.me{border-color:var(--gold);background:#2a2410;box-shadow:3px 3px 0 #000,0 0 16px #ffd23f33}
+.rank.me .ri{border-color:var(--gold)}
+.rank.me::after{content:"📍 TÚ ESTÁS AQUÍ";position:absolute;top:-11px;right:10px;font-family:var(--px);font-size:.45rem;background:var(--gold);color:#1b1000;border:3px solid #000;padding:4px 6px}
+.endcta{text-align:center;margin-top:22px}
+
+/* Toast */
+#toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,40px);opacity:0;pointer-events:none;z-index:50;
+  font-family:var(--px);font-size:.6rem;background:#000;color:var(--xp);border:3px solid var(--xp);padding:12px 14px;transition:all .25s;max-width:92vw;text-align:center;line-height:1.6}
+#toast.show{transform:translate(-50%,0);opacity:1}
+
+footer{margin-top:60px;padding:28px 0 56px;border-top:3px solid var(--line);color:var(--mut);text-align:center;font-size:.85rem}
+@media(max-width:560px){.inv{text-align:left}.zone-head .prog{margin-left:0}.npc{flex-direction:column}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+</style>
+</head>
+<body>
+
+<div class="hud">
+  <div class="wrap">
+    <div class="hero">
+      <div class="avatar" id="avatar" aria-hidden="true">🌱</div>
+      <div class="lv"><b id="lvl">NV 1</b><span id="ttl">Aprendiz</span></div>
+    </div>
+    <div class="bars">
+      <div class="bar" role="progressbar" aria-label="Experiencia" aria-valuemin="0" aria-valuemax="100" id="xpbar"><i id="xpfill"></i></div>
+      <div class="bar-lbl"><span id="xptxt">0 XP</span><span id="nexttxt"></span></div>
+    </div>
+    <div class="medals" id="medals" aria-label="Medallas"></div>
+    <div class="inv">🎒 <b id="cnt">0</b>/<span id="tot">0</span><br><button class="btn-reset" id="reset" title="Vaciar la mochila">REINICIAR</button></div>
+  </div>
+</div>
+
+<header class="top">
+  <div class="wrap">
+    <span class="tag">▶ NUEVA PARTIDA</span>
+    <h1>IA <em>QUEST</em><br>de Principiante a Vibe God</h1>
+    <p>Recorre las zonas, recoge herramientas y pergaminos, completa misiones y gana la medalla de cada nivel. Empieza en la academia y llega hasta el cielo.</p>
+    <div class="legend">
+      <span>⭐ <b style="color:var(--gold)">Dificultad</b>: qué tan difícil es dominarlo</span>
+      <span>⚔️ <b style="color:var(--red)">Daño</b>: cuánto poder te da al construir</span>
+    </div>
+    <div class="legend">
+      <span style="border-color:var(--common)">Común</span>
+      <span style="border-color:var(--rare)">Raro</span>
+      <span style="border-color:var(--epic)">Épico</span>
+      <span style="border-color:var(--legend)">Legendario</span>
+    </div>
+    <nav class="zones" id="zonenav">
+      <a href="#aldea">🏫 ACADEMIA</a>
+      <a href="#z1">🌱 PRADERA</a>
+      <a href="#z2">🏙️ CIUDAD</a>
+      <a href="#z3">🏛️ PANTEÓN</a>
+      <a href="#z4">🔮 CIELO</a>
+      <a href="#extra">🧭 EXTRAS</a>
+      <a href="#maestro">🧙 MAESTRO</a>
+    </nav>
+  </div>
+</header>
+<div class="tabs" role="tablist">
+  <button class="tab on" role="tab" data-tab="adv" aria-selected="true">🗺️ AVENTURA</button>
+  <button class="tab" role="tab" data-tab="story" aria-selected="false">📖 HISTORIA DE LA IA</button>
+</div>
+
+<main class="wrap" id="app"></main>
+<main class="wrap" id="storyMain" hidden></main>
+
+<footer><div class="wrap">Hecho para estudiantes · Tu mochila se guarda en este navegador.</div></footer>
+<dialog id="dlg" aria-labelledby="dlg-t"><div class="dlg-in" id="dlg-in">
+  <button class="x" id="dlg-x" aria-label="Cerrar">✕</button>
+  <div class="dh"><div class="ico" id="dlg-ico" aria-hidden="true"></div><div><h3 id="dlg-t"></h3><span class="rar" id="dlg-r"></span></div></div>
+  <div id="dlg-stats"></div>
+  <div id="dlg-body"></div>
+  <div class="row" id="dlg-act"></div>
+</div></dialog>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+/* ---------- DATOS ---------- */
+// [id, emoji, nombre, url, tag, dificultad, daño, descripción, [etiqueta academia, url academia]]
+const SK='https://anthropic.skilljar.com';
+const ZONES=[
+ {id:'z1',icon:'🌱',name:'Pradera del Principiante',rar:'common',xp:10,
+  desc:'Sin código. Entras, escribes y ya estás usando IA.',
+  baseD:1,baseX:2,
+  tools:[
+   ['claude','🟠','Claude','https://claude.ai','IA · Chat',1,4,'Tu aliado todoterreno: chat, proyectos y archivos para pensar y crear.',['Anthropic Academy',SK]],
+   ['chatgpt','💬','ChatGPT','https://chatgpt.com','IA · Chat',1,4,'El chat de OpenAI. Ideal para escribir, estudiar y resolver dudas.',['OpenAI Academy','https://academy.openai.com']],
+   ['gemini','✨','Gemini','https://gemini.google.com','IA · Chat',1,3,'La IA de Google, integrada con Gmail, Drive y Docs.',['Google AI Skills','https://grow.google/ai-skills/']],
+   ['perplexity','🔎','Perplexity','https://www.perplexity.ai','IA · Búsqueda',1,3,'Buscador con IA que responde citando sus fuentes.'],
+   ['genspark','⚡','Genspark','https://www.genspark.ai','Agentes',1,4,'Súper agente: investiga, crea presentaciones y sitios por ti.'],
+   ['grok','🌀','Grok','https://grok.com','Agentes · Chat',2,3,'El modelo de xAI con búsqueda en tiempo real.'],
+   ['deepseek','🐋','DeepSeek','https://chat.deepseek.com','Modelos',1,3,'Modelo potente y económico, bueno para razonar y programar.'],
+   ['lovable','💖','Lovable','https://lovable.dev','Vibecoding',2,4,'Crea apps completas describiéndolas con palabras.',['Lovable Academy','https://docs.lovable.dev']],
+   ['bolt','🔩','Bolt','https://bolt.new','Vibecoding',2,3,'Genera y publica apps web desde el navegador en minutos.'],
+   ['eleven','🎙️','ElevenLabs','https://elevenlabs.io','Voz IA',1,3,'Voces realistas y clonación de voz para videos y agentes.'],
+   ['mj','🎨','Midjourney','https://www.midjourney.com','Imagen IA',2,3,'Imágenes artísticas a partir de texto.']
+  ],
+  scrolls:[
+   ['Prompting','Escribir instrucciones claras: contexto, objetivo, formato y ejemplos.'],
+   ['Context window','La "memoria de trabajo" del modelo: cuánto texto puede considerar a la vez.'],
+   ['Tokens','Los trozos de texto que el modelo lee y escribe. Determinan costo y límites.'],
+   ['Projects','Espacios con archivos e instrucciones persistentes para no repetir contexto.'],
+   ['API Keys','Tu llave para usar modelos desde código. Nunca la subas a GitHub ni la compartas.'],
+   ['CLI','Usar herramientas desde la terminal, como Claude Code.'],
+   ['MCP Servers','Conectores estándar que le dan a la IA acceso a apps y datos (Drive, Gmail, GitHub…).'],
+   ['CLAUDE.md','Archivo de reglas del proyecto que la IA lee al empezar.'],
+   ['/commands','Atajos reutilizables para tareas que repites seguido.'],
+   ['Model routing','Usar un modelo pequeño y barato para lo simple, y uno potente para lo difícil.'],
+   ['Sub-agents','Agentes ayudantes con tarea y contexto propios, que devuelven solo el resultado.'],
+   ['Prompt caching','Reutilizar partes fijas del prompt para ahorrar costo y tiempo.']
+  ]},
+ {id:'z2',icon:'🏙️',name:'Ciudad de los Agentes',rar:'rare',xp:20,
+  desc:'Ya construyes en serio y quieres escalar.',
+  baseD:3,baseX:3,
+  tools:[
+   ['claudecode','🖥️','Claude Code','https://www.anthropic.com/claude-code','Vibecoding · CLI',3,5,'Agente de programación en tu terminal: lee tu proyecto, edita y ejecuta.',['Curso Claude Code',SK]],
+   ['cursor','🖱️','Cursor','https://cursor.com','Editor con IA',2,4,'Editor de código con IA integrada que entiende todo tu proyecto.',['Docs y Quickstart','https://docs.cursor.com']],
+   ['vscode','🧩','VS Code','https://code.visualstudio.com','Desarrollo',2,2,'El editor de código más usado, con miles de extensiones.'],
+   ['github','🐙','GitHub','https://github.com','Desarrollo',2,3,'Guarda tu código, colabora y publica proyectos.',['GitHub Skills','https://learn.github.com/skills']],
+   ['vercel','▲','Vercel','https://vercel.com','Hosting',2,3,'Publica tu página web en segundos y compártela con un link.',['Vercel Academy','https://vercel.com/academy']],
+   ['make','🟣','Make','https://www.make.com','Automatización',2,3,'Automatiza tareas conectando apps con flujos visuales.',['Make Academy (gratis)','https://academy.make.com']],
+   ['zapier','🔶','Zapier','https://zapier.com','Automatización',2,3,'Conecta miles de apps: "cuando pase X, haz Y".'],
+   ['n8n','🕸️','n8n','https://n8n.io','Automatización · Agentes',3,4,'Flujos visuales con nodos de IA para armar agentes.',['n8n Academy','https://learn.n8n.io/']],
+   ['manychat','💌','ManyChat','https://manychat.com','Chatbots',2,3,'Chatbots para WhatsApp e Instagram sin programar.'],
+   ['supabase','⚡','Supabase','https://supabase.com','Base de datos',3,4,'Base de datos y login listos para tus apps.',['Guías de inicio','https://supabase.com/docs/guides/getting-started']],
+   ['hf','🤗','Hugging Face','https://huggingface.co','Modelos',3,4,'El "GitHub" de los modelos de IA, con cursos gratuitos.',['Cursos Hugging Face','https://huggingface.co/learn']],
+   ['ollama','🦙','Ollama','https://ollama.com','Modelos locales',3,3,'Corre modelos de IA en tu propio computador.']
+  ],
+  scrolls:[
+   ['Git worktrees','Varias copias de un repo en paralelo para que cada agente trabaje sin pisarse.'],
+   ['Skills','Carpetas con instrucciones que la IA carga solo cuando las necesita.'],
+   ['Hooks','Acciones automáticas antes o después de eventos (formatear, testear, bloquear).'],
+   ['Harness engineering','Diseñar el entorno alrededor del modelo: herramientas, permisos, bucles y verificaciones.'],
+   ['Background agents','Agentes que trabajan mientras tú haces otra cosa.'],
+   ['Headless runs','Ejecutar la IA sin interfaz, desde scripts, cron o CI.']
+  ]},
+ {id:'z3',icon:'🏛️',name:'Panteón de la Orquestación',rar:'epic',xp:35,
+  desc:'Código, infraestructura y sistemas de agentes.',
+  baseD:4,baseX:4,
+  tools:[
+   ['mcp','🔌','MCP (documentación)','https://modelcontextprotocol.io','Estándar de conectores',3,5,'El estándar para conectar la IA con tus herramientas y datos.',['Curso Intro a MCP',SK]],
+   ['sdk','🛠️','Claude Agent SDK','https://docs.claude.com/en/docs/agent-sdk/overview','Agentes · Código',4,5,'Construye tus propios agentes con código, igual que Claude Code.'],
+   ['langchain','🔗','LangChain','https://www.langchain.com','Agentes · Código',4,4,'Framework para armar apps y agentes con LLMs.',['LangChain Academy (gratis)','https://academy.langchain.com']],
+   ['langgraph','🕷️','LangGraph','https://www.langchain.com/langgraph','Orquestación',5,5,'Agentes como grafos: control total del flujo y la memoria.',['LangChain Academy (gratis)','https://academy.langchain.com']],
+   ['crewai','👥','CrewAI','https://www.crewai.com','Equipos de agentes',4,4,'Arma "equipos" de agentes con roles que colaboran.'],
+   ['docker','🐳','Docker','https://www.docker.com','Infraestructura',4,3,'Empaqueta tu app para que corra igual en cualquier lugar.',['Recursos Docker','https://docs.docker.com/get-started/resources/']],
+   ['postman','📮','Postman','https://www.postman.com','APIs',3,2,'Prueba y explora APIs sin escribir código.',['Postman Docs y Academy','https://learning.postman.com']],
+   ['postgres','🐘','PostgreSQL','https://www.postgresql.org','Base de datos',4,3,'La base de datos relacional más confiable del mundo.'],
+   ['apify','🕷️','Apify','https://apify.com','Scraping · Agentes',4,4,'Extrae datos de la web y automatiza con "Actors".',['Apify Academy (gratis)','https://docs.apify.com/academy']]
+  ],
+  scrolls:[
+   ['Parallel agents','Varios agentes resolviendo partes distintas al mismo tiempo.'],
+   ['Progressive disclosure','Dar a la IA solo el contexto que necesita, cuando lo necesita.'],
+   ['Eval-driven loops','Medir resultados con pruebas automáticas e iterar según los números.'],
+   ['Orchestrator workflows','Un agente coordinador reparte trabajo a otros y junta resultados.'],
+   ['Ultrathink','Pedir razonamiento extendido para problemas difíciles.'],
+   ['Memory consolidation','Resumir y guardar lo aprendido para que el agente mejore con el tiempo.']
+  ]},
+ {id:'z4',icon:'🔮',name:'Cielo del Vibe God',rar:'legend',xp:60,
+  desc:'La frontera: agentes que se mejoran y se supervisan solos.',
+  baseD:5,baseX:5,
+  tools:[
+   ['cc-headless','🚀','Claude Code headless','https://docs.claude.com/en/docs/claude-code/overview','Agentes · CI/CD',5,5,'Claude Code sin interfaz: en scripts, tareas programadas y sub-agentes.',['Curso Claude Code',SK]],
+   ['gha','🤖','GitHub Actions','https://github.com/features/actions','CI/CD',4,4,'Automatiza pruebas y despliegues cada vez que cambias el código.',['GitHub Skills','https://learn.github.com/skills']],
+   ['sdk2','👑','Agent SDK en producción','https://docs.claude.com/en/docs/agent-sdk/overview','Agentes que gestionan agentes',5,5,'Jerarquías donde unos agentes supervisan y dirigen a otros.']
+  ],
+  scrolls:[
+   ['Self-improving loops','El agente evalúa su trabajo y mejora sus propias instrucciones.'],
+   ['Tool poisoning','Ataque donde una herramienta o texto malicioso engaña al agente. Hay que conocerlo para defenderse.'],
+   ['Self-healing tests','Tests que detectan cuándo se rompen y se reparan solos.'],
+   ['Agent CI/CD','Pipelines donde agentes revisan, prueban y despliegan código.'],
+   ['Agents managing agents','Jerarquías donde unos agentes supervisan y dirigen a otros.']
+  ]}
+];
+
+const TOMES=[
+ ['t-anthropic','📘','Anthropic Academy','https://anthropic.skilljar.com','Academia · Claude',1,4,'Claude 101, Claude Code, API, MCP, sub-agentes y skills.'],
+ ['t-openai','📗','OpenAI Academy','https://academy.openai.com','Academia · OpenAI',1,4,'Cursos por perfil, eventos y comunidades de OpenAI.'],
+ ['t-dlai','📙','DeepLearning.AI','https://www.deeplearning.ai/short-courses/','Cursos cortos',2,4,'Más de 100 cursos cortos: agentes, Claude Code, MCP y RAG.'],
+ ['t-google','📕','Google AI Skills','https://grow.google/ai-skills/','Academia · Google',1,3,'AI Essentials y cursos para estudiantes y pymes.']
+];
+
+
+/* ---------- MISIONES Y MEDALLAS ---------- */
+const MEDALS={
+ aldea:{icon:'🎓',name:'Medalla del Estudiante',xp:15,missions:[
+  ['Inscríbete en una academia','Crea tu cuenta en Anthropic, OpenAI, Google o DeepLearning.AI y entra a tu primera lección.'],
+  ['Completa un curso corto','Termina un curso introductorio, por ejemplo Claude 101 o AI Essentials.'],
+  ['Mira un video del maestro','Entra al canal @bencord y mira un tutorial completo.']]},
+ z1:{icon:'🥉',name:'Medalla del Escriba',xp:20,missions:[
+  ['Sintetiza y redacta notas','Convierte notas en borrador, ideas sueltas o apuntes de una reunión en un correo estructurado o un reporte ejecutivo corto.'],
+  ['Escribe un correo ejecutivo','Menos de 250 palabras, tono profesional, encabezados claros y una sección obligatoria de Próximos Pasos con responsables asignados.'],
+  ['Analiza el proceso antes de enviar','Pídele a la IA que revise tu borrador, detecte si falta información crítica y te haga preguntas aclaratorias antes del documento final.']]},
+ z2:{icon:'🥈',name:'Medalla del Creador',xp:30,missions:[
+  ['De esquema a diapositivas','Toma un texto o una pauta estructurada y conviértela en la estructura de una presentación ejecutiva (Genspark, Gemini, Claude…).'],
+  ['Genera un activo visual','Crea una imagen corporativa o una ilustración de marketing ajustando iluminación, encuadre y estilo con prompts visuales (Midjourney u otra).'],
+  ['Crea contenido dinámico','Produce un avatar sintético, una síntesis de voz (ElevenLabs) o un video explicativo texto-a-video para capacitación o marca.']]},
+ z3:{icon:'🥇',name:'Medalla del Arquitecto de Agentes',xp:50,missions:[
+  ['Crea un asesor de investigación','Delega la búsqueda, el resumen y la estructuración de información densa a un agente con rol y memoria definidos.'],
+  ['Orquesta entre plataformas','Conecta Google Drive, GitHub y un conector tipo Composio para sincronizar archivos y mantener control de versiones entre local y nube.'],
+  ['Crea tu propio agente','Configura Custom Instructions en Gemini o ChatGPT (versión gratuita) para que actúe con un rol, un contexto y restricciones específicas.']]},
+ z4:{icon:'👑',name:'Medalla del Vibe God',xp:80,missions:[
+  ['Encadena tus herramientas','Arma un flujo end-to-end: de la idea en texto, pasando por imágenes o presentación, hasta el entregable final.'],
+  ['Audita las respuestas de la IA','Aplica supervisión humana (human-in-the-loop): revisa, evalúa y corrige alucinaciones antes de dar algo por bueno.'],
+  ['Protege los datos sensibles','Revisa que tu flujo no exponga información privada y define qué datos nunca se comparten con una IA.']]},
+ story:{icon:'📖',name:'Medalla del Cronista',xp:40,missions:[
+  ['Acto I · El contexto lo es todo','Capítulos 1 al 3'],
+  ['Acto II · Un chat para cada cosa','Capítulos 4 al 6'],
+  ['Acto III · El ciclo permanente','Capítulos 7 al 9']]},
+ extra:{icon:'🧭',name:'Medalla del Explorador',xp:25,missions:[
+  ['Prueba un conector','Conecta una herramienta con Composio (o un conector MCP) y ejecuta una acción real, como leer un archivo de tu Drive.'],
+  ['Desafío: programa revisiones','Programa una revisión automática y recurrente, por ejemplo un resumen de pendientes cada lunes, con una tarea programada.'],
+  ['Automatiza tus redes','Crea un flujo (Make, Zapier o n8n) que prepare y programe tus publicaciones, con revisión humana antes de publicar.'],
+  ['Prueba una IA nueva','Elige una IA que nunca hayas usado (Grok, DeepSeek, Genspark, Perplexity…) y compárala con tu favorita en una misma tarea.']]}
+};
+function missionsHTML(zid,title){
+  const M=MEDALS[zid];
+  return `<div class="sub-h">${title||'⚔️ MISIONES · GANA LA MEDALLA'}</div>
+  <div class="quest">
+   <div class="medal-card" id="mc-${zid}"><div class="mi" aria-hidden="true">${M.icon}</div><div><b>${M.name}</b><span class="mp" id="mp-${zid}"></span></div></div>
+   <ul class="mlist">${M.missions.map((m,i)=>`<li class="mission" data-m="${zid}-m${i}"><button class="mchk" data-m="${zid}-m${i}" aria-pressed="false" aria-label="Marcar misión: ${m[0]}"></button><div><b>${m[0]}</b><span>${m[1]}</span></div><em>+${M.xp} XP</em></li>`).join('')}</ul>
+  </div>`;
+}
+
+
+/* ---------- HISTORIA DE LA IA ---------- */
+const STORY=[
+ {act:'ACTO I',title:'El contexto lo es todo',icon:'🧠',blurb:'Descubrimos cómo hablarle a la IA.',chs:[
+  {ic:'🔎',t:'Le preguntamos a la IA como a Google',
+   txt:'Todo empezó cuando nos dimos cuenta de que podíamos preguntarle a la IA igual que siempre lo hicimos con Google. Pero había una diferencia enorme: parecía entender mucho mejor el lenguaje, y además buscaba y digería la información por nosotros.',
+   learn:'Ya no solo recibimos links: la IA entiende lo que preguntamos y nos devuelve la información ya procesada.',
+   chips:[['z1-s0','📜 Prompting'],['perplexity','🔎 Perplexity'],['chatgpt','💬 ChatGPT']]},
+  {ic:'💬',t:'Un solo chat no alcanza',
+   txt:'Pero no podía ser un solo chat. Tuvimos que ir abriendo cada vez más chats, con información más específica, porque nos dimos cuenta de que un contexto pobre da una respuesta genérica (casi aleatoria), y un contexto enriquecido da una respuesta más específica.',
+   learn:'Contexto pobre = respuesta genérica. Contexto enriquecido = respuesta específica.',
+   chips:[['z1-s1','📜 Context window'],['z1-s2','📜 Tokens'],['z1-s3','📜 Projects']]},
+  {ic:'📄',t:'Nacen los .md',
+   txt:'Entonces surgieron los archivos .md: las instrucciones maestras. En lugar de explicar lo mismo en cada conversación, las escribimos una vez y la IA las lee al empezar.',
+   learn:'Un archivo .md es el manual de instrucciones que acompaña a la IA.',
+   chips:[['z1-s7','📜 CLAUDE.md'],['claude','🟠 Claude']]}
+ ]},
+ {act:'ACTO II',title:'Un chat para cada cosa',icon:'🎓',blurb:'Especializamos los chats y nacieron los agentes.',chs:[
+  {ic:'🗂️',t:'Un chat para cada cosa',
+   txt:'Nos dimos cuenta de que era mejor tener un chat para cada cosa: uno para escribir, otro para investigar, otro para programar. Cada uno con su propio contexto.',
+   learn:'Especializar cada chat da más foco y menos ruido.',
+   chips:[['z1-s3','📜 Projects'],['z1-s8','📜 /commands']]},
+  {ic:'🎓',t:'Nacen las habilidades',
+   txt:'Pero a veces los distintos chats necesitaban hacer lo mismo. Entonces creamos las habilidades (skills): instrucciones reutilizables que afectan a los chats y que cualquiera de ellos puede usar.',
+   learn:'Una habilidad se escribe una vez y sirve en muchos chats.',
+   chips:[['z2-s1','📜 Skills']]},
+  {ic:'🤖',t:'Un chat con habilidades es un agente',
+   txt:'Y cuando un chat nace con habilidades, empezamos a llamarlo agente. Ya no solo conversa: sabe hacer cosas.',
+   learn:'Agente = chat + habilidades.',
+   chips:[['z1-s10','📜 Sub-agents'],['z2-s4','📜 Background agents'],['claudecode','🖥️ Claude Code']]}
+ ]},
+ {act:'ACTO III',title:'El ciclo permanente',icon:'♾️',blurb:'Agentes que trabajan y guardianes que vigilan.',chs:[
+  {ic:'🔁',t:'Todo es un loop',
+   txt:'Las habilidades y los agentes son un loop: una tarea que se va a repetir. Cuando nos dimos cuenta de eso, dejamos de pedir cosas una por una y empezamos a diseñar tareas que se ejecutan solas.',
+   learn:'Si una tarea se repite, conviértela en una habilidad y déjala a un agente.',
+   chips:[['z2-s5','📜 Headless runs'],['z3-s2','📜 Eval-driven loops']]},
+  {ic:'👥',t:'Mejor varios agentes',
+   txt:'Era mejor tener varios agentes, cada uno con su especialidad, trabajando juntos en lugar de un solo agente que hace de todo.',
+   learn:'Varios agentes especializados rinden más que uno que hace todo.',
+   chips:[['z3-s0','📜 Parallel agents'],['z3-s3','📜 Orchestrator workflows'],['z4-s4','📜 Agents managing agents']]},
+  {ic:'🛡️',t:'Los guardianes',
+   txt:'Y también algunos guardianes: piezas cuyo trabajo es revisar, frenar y corregir a los demás. Con agentes que hacen y guardianes que vigilan, logramos un ciclo de trabajo permanente.',
+   learn:'Agentes que hacen + guardianes que revisan = ciclo de trabajo permanente.',
+   chips:[['z2-s2','📜 Hooks'],['z3-s2','📜 Eval-driven loops'],['z4-s1','📜 Tool poisoning']]}
+ ]}
+];
+const LADDER=[['💬','Chat'],['🧠','Contexto'],['📄','.md'],['🗂️','Chat por tarea'],['🎓','Habilidades'],['🤖','Agente'],['🔁','Loop'],['👥','Varios agentes'],['🛡️','Guardianes']];
+
+function storyHTML(){
+  let n=0;
+  const M=MEDALS.story;
+  const acts=STORY.map((a,ai)=>{
+    const caps=a.chs.map(c=>{
+      n++;
+      return `<article class="cap" id="cap${n}"><div class="num">CAP ${n}<span aria-hidden="true">${c.ic}</span></div><div>
+        <h4>${c.t}</h4><p>${c.txt}</p>
+        <div class="learned"><b>💡 Lo que aprendimos:</b> ${c.learn}</div>
+        <div class="chips2">${c.chips.map(x=>`<button class="chip" data-open="${x[0]}">${x[1]}</button>`).join('')}</div>
+      </div></article>`;
+    }).join('');
+    return `<section class="zone">
+      <div class="zone-head"><span class="ic">${a.icon}</span><div><h2>${a.act} · ${a.title}</h2><p>${a.blurb}</p></div></div>
+      <div class="caps">${caps}</div>
+      <ul class="mlist act-done"><li class="mission" data-m="story-m${ai}"><button class="mchk" data-m="story-m${ai}" aria-pressed="false" aria-label="Marcar ${a.act} como completado"></button><div><b>Completé el ${a.act}: ${a.title}</b><span>Leí los 3 capítulos y entendí la idea.</span></div><em>+${M.xp} XP</em></li></ul>
+    </section>`;
+  }).join('');
+  const ladder=LADDER.map((l,i)=>`<button data-go="cap${Math.min(9,[1,2,3,4,5,6,7,8,9][i])}">${l[0]} ${l[1]}</button>`).join('<i>→</i>');
+  return `<div class="story-intro">
+    <h2>📖 La Gran Historia de la IA</h2>
+    <p>Así llegamos de preguntarle cosas a un chat a tener equipos de agentes trabajando solos. Lee los 3 actos, toca los conceptos y gana la medalla del Cronista.</p>
+  </div>
+  <div class="ladder" aria-label="Evolución">${ladder}<i>→</i><button class="goal" data-go="cap9">♾️ Ciclo permanente</button></div>
+  <div class="quest" style="margin-top:20px">
+    <div class="medal-card" id="mc-story"><div class="mi" aria-hidden="true">${M.icon}</div><div><b>${M.name}</b><span class="mp" id="mp-story"></span></div></div>
+  </div>
+  <div class="acts">${acts}</div>
+  <div class="cycle">
+    <h3>♾️ EL CICLO PERMANENTE</h3>
+    <div class="cyc"><div><b>🤖 Agentes</b>Hacen el trabajo y repiten las tareas.</div><div class="ar">⇄</div><div><b>🛡️ Guardianes</b>Revisan, frenan y corrigen.</div></div>
+    <p style="margin-bottom:0">Así se mantiene el trabajo en marcha sin que tengas que pedir todo de nuevo.</p>
+  </div>
+  <section class="zone epilogue">
+    <div class="zone-head"><span class="ic">🏁</span><div><h2>Epílogo · ¿Qué nivel eres?</h2><p>Así sabes dónde estás y qué sigue.</p></div></div>
+    <div class="ranks">${RANKS.map((r,i)=>`<div class="rank" data-r="${i}"><div class="ri" aria-hidden="true">${r.ic}</div><div><b>${TITLES[i].toUpperCase()}</b><span>${r.txt}</span><em>DESDE ${i*STEP} XP</em></div></div>`).join('')}</div>
+  </section>
+  <div class="endcta"><button class="cta" data-tabgo="adv" style="cursor:pointer">🗺️ VOLVER A LA AVENTURA</button></div>`;
+}
+
+
+const RANKS=[
+ {ic:'🌱',txt:'Un aprendiz debería poder trabajar con el chat y hacer documentos y presentaciones.'},
+ {ic:'🗡️',txt:'Un iniciado debería tener sus primeros agentes.'},
+ {ic:'🧭',txt:'Un explorador ya debería tener apps y páginas web.'},
+ {ic:'⚔️',txt:'Un aventurero ya debería tener flujos en loop.'},
+ {ic:'🔥',txt:'Un crack ya hace todo con IA.'}
+];
+const TITLES=['Aprendiz','Iniciado','Explorador','Aventurero','Crack'];
+const STEP=400, RARN={common:'COMÚN',rare:'RARO',epic:'ÉPICO',legend:'LEGENDARIO'};
+const SCROLL_ICONS=['📜','📜','📜','📜'];
+
+
+/* ---------- EXPLICACIONES DETALLADAS: [qué es, cómo se usa, consejo] ---------- */
+const MORE={
+'claude':["Claude es el asistente de IA de Anthropic. Puede conversar, escribir, analizar documentos y archivos, programar y ayudarte a estudiar.","Súbele un PDF o tus apuntes y pídele un resumen, un plan de estudio o que te explique un tema paso a paso. Con Projects puedes guardar contexto para no repetirlo.","Cuéntale para qué lo necesitas y en qué nivel estás: las respuestas mejoran mucho con más contexto."],
+'chatgpt':["ChatGPT es el asistente de OpenAI, uno de los más conocidos del mundo. Responde preguntas, redacta, resume, traduce y también ayuda a programar.","Úsalo para generar ideas, corregir textos, practicar idiomas o simular una entrevista. Pídele que te explique como si tuvieras 12 años cuando un tema sea difícil.","Verifica siempre los datos importantes: como cualquier IA, a veces se equivoca con mucha seguridad."],
+'gemini':["Gemini es la IA de Google. Se integra con Gmail, Drive, Docs y otras apps de Google, lo que la hace útil si ya vives en ese ecosistema.","Pídele que resuma correos, prepare un borrador en Docs o busque información en tus archivos de Drive (según tu plan y permisos).","Revisa qué funciones incluye tu cuenta o plan antes de contar con ellas."],
+'perplexity':["Perplexity es un buscador conversacional: haces una pregunta y te entrega una respuesta con las fuentes citadas.","Es ideal para investigar un trabajo: pregunta, mira las fuentes y abre los links para comprobar la información.","No copies la respuesta tal cual: usa las fuentes para citar y verificar."],
+'genspark':["Genspark es una plataforma de súper agente: recibe una tarea y la ejecuta por pasos, como investigar, armar presentaciones o crear sitios.","Dale un objetivo claro, por ejemplo: investiga el mercado de X y hazme una presentación de 8 láminas. Luego revisa y ajusta el resultado.","Compara siempre el resultado con tus propias fuentes antes de entregarlo."],
+'grok':["Grok es el asistente de xAI. Se destaca por tener acceso a información reciente y a lo que se conversa en la plataforma X.","Sirve para ver qué se dice de un tema hoy, resumir tendencias o hacer preguntas de actualidad.","En noticias o temas sensibles, contrasta con fuentes confiables."],
+'deepseek':["DeepSeek es una familia de modelos de IA conocida por razonar bien y tener un costo bajo. Existen versiones abiertas que se pueden usar en otras plataformas.","Úsalo para problemas de lógica, matemáticas o código, y para comparar sus respuestas con las de otros modelos.","Antes de subir datos privados a cualquier app, revisa su política de privacidad."],
+'lovable':["Lovable es una plataforma de vibecoding: describes tu app en español y genera el frontend, la base de datos y el login por ti.","Empieza con una idea pequeña, como una lista de tareas o un portafolio, y ve pidiendo cambios en el chat. Se conecta con GitHub y Supabase.","Los cambios pequeños y claros funcionan mejor que pedir todo de una sola vez."],
+'bolt':["Bolt (bolt.new) genera, ejecuta y publica apps web desde el navegador a partir de un prompt, sin instalar nada.","Pídele una landing, una calculadora o un mini juego, pruébalo en vivo y afínalo con más instrucciones.","Cuando algo te guste, guarda o exporta el proyecto para no perder avances."],
+'eleven':["ElevenLabs genera voces sintéticas muy realistas a partir de texto y permite doblar o clonar voces.","Úsalo para narrar videos, hacer podcasts o darle voz a un agente.","Clona únicamente voces propias o con permiso explícito de la persona."],
+'mj':["Midjourney crea imágenes artísticas a partir de descripciones de texto y destaca por su estilo y estética.","Describe sujeto, estilo, luz y ambiente. Ejemplo: retrato de un robot jardinero, acuarela, luz de atardecer.","Si vas a usar las imágenes con fines comerciales, revisa primero los términos de uso."],
+'claudecode':["Claude Code es un agente de programación que vive en tu terminal (y en otros entornos): lee tu proyecto, edita archivos y corre comandos y tests.","Entra a la carpeta de tu proyecto y pídele cosas como agrega un login o arregla este error. Se personaliza con CLAUDE.md, skills, hooks y sub-agentes.","Revisa los cambios con git antes de aceptarlos: tú sigues siendo quien decide."],
+'cursor':["Cursor es un editor de código basado en VS Code con IA integrada que entiende todo tu proyecto.","Selecciona código y pídele que lo explique, lo mejore o escriba tests; también puede editar varios archivos a la vez.","Aprende los atajos de teclado: te ahorran mucho tiempo."],
+'vscode':["Visual Studio Code es un editor de código gratuito y muy usado, con miles de extensiones.","Es la base sobre la que se montan muchas herramientas de IA. Úsalo para editar tus proyectos y probar extensiones.","Aprende a usar la terminal integrada y el control de versiones (Git) desde el panel lateral."],
+'github':["GitHub es la plataforma donde se guarda código con control de versiones (Git) y se colabora en equipo.","Sube tus proyectos a repositorios, haz commits y pull requests, y conéctalo a Vercel para publicar automáticamente.","Nunca subas claves de API ni contraseñas: usa variables de entorno."],
+'vercel':["Vercel es una plataforma para publicar sitios y apps web con un link público, con despliegues automáticos desde GitHub.","Conecta tu repositorio o sube una carpeta con un index.html y obtén una URL para compartir.","Cada cambio que subes a GitHub puede generar una nueva versión del sitio automáticamente."],
+'make':["Make es una plataforma de automatización visual: conectas apps mediante módulos y escenarios, sin programar.","Ejemplo: cuando llegue un correo con adjunto, guárdalo en Drive y avísame por Slack. También permite crear agentes de IA.","Empieza con un escenario pequeño y pruébalo paso a paso antes de activarlo."],
+'zapier':["Zapier conecta miles de aplicaciones con Zaps: cuando ocurre algo en una app, se ejecuta una acción en otra.","Es una de las formas más rápidas de automatizar tareas repetitivas, como pasar datos de un formulario a una hoja de cálculo.","Revisa los límites de tareas de tu plan para no llevarte sorpresas."],
+'n8n':["n8n es una herramienta de automatización con nodos que puede usarse en la nube o instalarse por tu cuenta. Incluye nodos para IA y agentes.","Crea flujos que reciben datos, los procesan con un modelo de IA y los envían a otra app. Su academia tiene ejercicios prácticos.","Empieza con su guía Build your first workflow antes de armar agentes."],
+'manychat':["ManyChat permite crear chatbots para Instagram, WhatsApp y Messenger sin programar.","Es útil para responder preguntas frecuentes, captar contactos o enviar secuencias de mensajes.","Respeta las reglas de cada plataforma sobre mensajes automáticos y privacidad."],
+'supabase':["Supabase ofrece base de datos PostgreSQL, autenticación (login), almacenamiento y funciones listas para usar en tus apps.","Lovable y otras herramientas se conectan con Supabase para guardar usuarios y datos.","Activa las reglas de seguridad por fila (RLS) para que cada usuario vea solo sus datos."],
+'hf':["Hugging Face es la plataforma donde la comunidad comparte modelos, datasets y demos de IA. También ofrece cursos gratuitos.","Explora modelos abiertos, prueba demos en Spaces y sigue su curso de agentes o de LLMs.","Revisa la licencia de cada modelo antes de usarlo en un proyecto comercial."],
+'ollama':["Ollama permite ejecutar modelos de IA abiertos directamente en tu computador, sin enviar datos a la nube.","Instálalo, descarga un modelo y conversa desde la terminal. Sirve para trabajar con información privada.","Los modelos grandes necesitan buena memoria y tarjeta gráfica: empieza con uno pequeño."],
+'mcp':["MCP (Model Context Protocol) es un estándar abierto para conectar modelos de IA con herramientas, archivos y datos externos mediante servidores.","Con MCP, Claude u otras IAs pueden leer tu Drive, tu calendario o tu base de datos sin integraciones hechas a medida.","Instala solo servidores de fuentes confiables: darán acceso a tus datos."],
+'sdk':["El Claude Agent SDK permite construir tus propios agentes con código, usando el mismo motor de agentes que Claude Code.","Define las herramientas y los permisos de tu agente y deja que planifique y ejecute tareas por ti.","Parte con una tarea acotada y revisa muy bien qué permisos le das."],
+'langchain':["LangChain es un framework para construir aplicaciones con modelos de lenguaje: cadenas, herramientas, memoria y acceso a tus datos.","Sirve para armar asistentes que consultan tus documentos (RAG) o llaman a APIs. Su academia es gratuita.","Aprende primero lo básico (prompts y herramientas) antes de pasar a LangGraph."],
+'langgraph':["LangGraph modela los agentes como grafos de estados, con control preciso del flujo, la memoria y los puntos de decisión.","Es útil cuando necesitas flujos con ramas, bucles y aprobación humana en el medio.","Es más avanzado: conviene dominar LangChain y Python antes."],
+'crewai':["CrewAI es un framework para armar equipos de agentes con roles, objetivos y tareas que colaboran entre sí.","Ejemplo: un agente investigador, otro redactor y otro revisor trabajando en un mismo informe.","Más agentes no siempre es mejor: define bien la tarea de cada uno."],
+'docker':["Docker empaqueta tu aplicación y sus dependencias en contenedores que funcionan igual en cualquier computador o servidor.","Se usa para desplegar apps, bases de datos y servidores de agentes de forma reproducible.","Aprende primero a crear un Dockerfile sencillo y a correr un contenedor."],
+'postman':["Postman es una herramienta para probar y documentar APIs enviando solicitudes sin escribir código.","Es útil para comprobar que tu API key funciona y para entender qué responde un servicio.","Guarda tus solicitudes en colecciones y no compartas tus claves."],
+'postgres':["PostgreSQL es una base de datos relacional de código abierto, muy confiable y potente.","Es la base de muchos productos modernos (incluido Supabase). Aprende SQL: tablas, consultas y relaciones.","Practica con un proyecto pequeño, como un registro de gastos."],
+'apify':["Apify es una plataforma para extraer datos de sitios web (scraping) y automatizar tareas con programas llamados Actors.","Puedes usar Actors listos de su tienda o crear los tuyos, y conectarlos a agentes de IA.","Respeta los términos de cada sitio y las leyes de protección de datos."],
+'cc-headless':["El modo headless ejecuta Claude Code sin interfaz, desde scripts, tareas programadas o pipelines de CI.","Sirve para revisar código automáticamente, generar reportes o correr tareas cuando tú no estás.","Una ejecución sin supervisión necesita límites claros: restringe permisos y revisa los resultados."],
+'gha':["GitHub Actions automatiza flujos cuando ocurren eventos en tu repositorio: correr pruebas, revisar código o desplegar.","Se combina con agentes de IA para revisar pull requests o arreglar tests que fallan.","Guarda tus claves en Secrets, nunca en el código."],
+'sdk2':["Es llevar el Agent SDK a producción: agentes que gestionan a otros agentes, con monitoreo, límites y evaluaciones.","Ejemplo: un agente coordinador que reparte tareas a agentes especializados y revisa sus resultados.","Mide con evaluaciones, registra todo y pon límites de costo."],
+'t-anthropic':["La Anthropic Academy reúne cursos sobre Claude, Claude Code, la API, MCP, sub-agentes y skills, además de la serie AI Fluency.","Empieza con Claude 101 y luego Claude Code 101. Necesitas una cuenta en la plataforma de cursos.","No pude confirmar los precios: revisa cada curso."],
+'t-openai':["OpenAI Academy ofrece cursos por perfil (trabajo, desarrolladores, líderes, educación), además de eventos y comunidades.","Es útil para aprender ChatGPT, Codex y la API de OpenAI.","Revisa el registro para saber qué contenido es gratuito."],
+'t-dlai':["DeepLearning.AI ofrece más de 100 cursos cortos y prácticos, muchos hechos junto a empresas como Anthropic y LangChain.","Busca cursos sobre Claude Code, MCP, Agentic AI y evaluación de agentes.","Son cursos cortos, ideales para avanzar de a poco."],
+'t-google':["Google AI Skills incluye cursos como AI Essentials y programas para estudiantes, educadores y pequeñas empresas.","Es una buena base si ya usas herramientas de Google.","Revisa en cada curso su costo y disponibilidad en tu país."],
+'z1-s0':["Prompting es el arte de pedir bien: cuanto más claro es tu pedido, mejor es la respuesta.","Estructura útil: rol, contexto, tarea, formato y ejemplos. Ejemplo: eres profesor de física, explica X a un estudiante de 15 años en 5 puntos.","Si no te gusta el resultado, no empieces de cero: corrige y pide ajustes."],
+'z1-s1':["Es la cantidad máxima de texto (tokens) que el modelo puede tener en mente a la vez: tu conversación, archivos y respuestas.","Si la conversación es muy larga, el modelo puede perder partes. Resume o abre un chat nuevo con lo esencial.","Dar solo el contexto necesario suele funcionar mejor que pegar todo."],
+'z1-s2':["Los tokens son los trozos en que el modelo divide el texto (palabras, partes de palabras o símbolos). Todo se mide en tokens.","Determinan el costo en la API y cuánto cabe en el contexto. En español, una palabra a menudo usa más de un token.","Los mensajes más concisos gastan menos tokens."],
+'z1-s3':["Son espacios de trabajo con archivos e instrucciones permanentes que el asistente usa en cada chat del proyecto.","Crea un proyecto por curso o cliente y sube tus apuntes y reglas de estilo.","Mantén los archivos ordenados y actualizados."],
+'z1-s4':["Una API key es una clave secreta que identifica tu cuenta cuando usas un modelo desde código.","Se guarda en variables de entorno (por ejemplo, un archivo .env), no dentro del código.","Si se filtra, revócala y crea otra de inmediato. Nunca la publiques en GitHub."],
+'z1-s5':["CLI significa interfaz de línea de comandos: usar programas escribiendo comandos en la terminal.","Herramientas como Claude Code se usan desde la terminal. Aprende comandos básicos como cd, ls y mkdir.","No le tengas miedo a la terminal: empieza con comandos simples."],
+'z1-s6':["Son programas que exponen herramientas y datos (Drive, Gmail, GitHub, bases de datos) a la IA mediante el estándar MCP.","Conectas un servidor y la IA puede leer o actuar en esa app, con tu permiso.","Revisa qué permisos otorgas y usa solo servidores confiables."],
+'z1-s7':["Es un archivo de texto en la raíz del proyecto con reglas, contexto y convenciones que Claude Code lee al empezar.","Escribe cómo correr el proyecto, el estilo de código y qué debe evitar.","Mantenlo corto y claro: demasiado texto diluye lo importante."],
+'z1-s8':["Son atajos con barra (como /review) que guardan instrucciones que repites seguido.","Crea comandos propios para tareas como revisar código o generar un resumen diario.","Ponles nombres claros y documenta qué hace cada uno."],
+'z1-s9':["Es elegir el modelo según la tarea: uno pequeño y rápido para lo simple y uno potente para lo complejo.","Ahorra costo y tiempo: clasificar un correo no necesita el modelo más grande.","Mide la calidad: si baja con el modelo pequeño, sube de nivel."],
+'z1-s10':["Son agentes ayudantes con su propia tarea y contexto; devuelven solo un resultado al agente principal.","Úsalos para investigar, revisar código o probar cosas sin llenar el contexto principal.","Dales instrucciones específicas y un formato de respuesta claro."],
+'z1-s11':["Es reutilizar la parte fija del prompt (instrucciones, documentos largos) para que no se procese completa cada vez.","Reduce costos y tiempos cuando repites el mismo contexto en muchas consultas.","Pon al inicio lo que no cambia y al final lo variable."],
+'z2-s0':["Son copias de trabajo de un mismo repositorio en carpetas distintas, cada una en su propia rama.","Permiten que varios agentes trabajen en paralelo sin pisarse los archivos.","Aprende primero Git básico: ramas, commits y merges."],
+'z2-s1':["Son carpetas con instrucciones, scripts y recursos que la IA carga solo cuando la tarea lo necesita.","Ejemplo: una skill para crear presentaciones con tu estilo.","Una descripción clara ayuda a que la IA sepa cuándo usarla."],
+'z2-s2':["Son acciones automáticas que se disparan en momentos concretos: antes o después de usar una herramienta, al terminar una tarea, etc.","Sirven para formatear código, correr tests o bloquear comandos peligrosos.","Pruébalos en un proyecto de práctica antes de usarlos en uno real."],
+'z2-s3':["Es diseñar todo lo que rodea al modelo (herramientas, permisos, memoria, bucles y verificaciones) para que el agente sea confiable.","Un buen harness hace que el mismo modelo rinda mucho mejor.","Añade verificaciones automáticas (tests) para que el agente pueda autocorregirse."],
+'z2-s4':["Son agentes que trabajan en segundo plano mientras tú haces otra cosa, y te avisan al terminar.","Son ideales para tareas largas: investigar, migrar código o generar informes.","Define bien el objetivo y cómo debe reportar."],
+'z2-s5':["Es ejecutar la IA sin interfaz, desde scripts, tareas programadas (cron) o CI.","Permite automatizar revisiones y reportes sin intervención.","Limita permisos y registra cada ejecución."],
+'z3-s0':["Son varios agentes que trabajan a la vez en partes distintas del problema.","Ejemplo: uno investiga, otro escribe pruebas y otro revisa la seguridad.","Divide el trabajo en partes independientes para evitar conflictos."],
+'z3-s1':["Es entregar a la IA solo la información necesaria en cada momento, e ir sumando más si hace falta.","Evita llenar el contexto: las skills usan esta idea al cargar los detalles solo cuando se necesitan.","Organiza la información en niveles: resumen, detalle y referencias."],
+'z3-s2':["Es un bucle donde mides resultados con evaluaciones automáticas y mejoras el sistema según los números.","Define casos de prueba con respuestas esperadas y compáralos tras cada cambio.","Parte con pocas pruebas, pero que representen casos reales."],
+'z3-s3':["Un agente coordinador divide el trabajo, lo reparte a agentes especializados y junta los resultados.","Se parece a un jefe de proyecto con un equipo de especialistas.","Define claramente quién hace qué y cómo se entregan los resultados."],
+'z3-s4':["Es pedirle al modelo que dedique más razonamiento a un problema difícil antes de responder.","Úsalo en decisiones de arquitectura, errores complejos o planes largos.","Tarda y cuesta más: resérvalo para lo difícil."],
+'z3-s5':["Es resumir y guardar lo aprendido en sesiones anteriores para que el agente lo recuerde y mejore.","Ejemplo: guardar preferencias, decisiones y errores comunes en un archivo de memoria.","Revisa y limpia la memoria para no acumular información incorrecta."],
+'z4-s0':["Un agente evalúa su propio trabajo y ajusta sus instrucciones o su método para hacerlo mejor la próxima vez.","Requiere buenas métricas y límites para no empeorar sin darse cuenta.","Mantén a una persona revisando los cambios importantes."],
+'z4-s1':["Es un ataque donde una herramienta, un documento o una página contiene instrucciones maliciosas que engañan al agente.","Conocerlo te ayuda a diseñar defensas: tratar el contenido externo como datos y no como órdenes.","Da permisos mínimos y pide confirmación en acciones sensibles."],
+'z4-s2':["Son pruebas automáticas que detectan cuándo se rompen por un cambio legítimo y se reparan solas, con supervisión.","Reducen el mantenimiento de los tests en proyectos grandes.","Verifica que la reparación no esté ocultando un error real."],
+'z4-s3':["Son pipelines donde agentes revisan, prueban y despliegan código automáticamente.","Ejemplo: un agente que revisa cada pull request y propone arreglos.","Mantén aprobaciones humanas antes de pasar a producción."],
+'z4-s4':["Son jerarquías donde unos agentes supervisan, dirigen y evalúan a otros.","Permiten escalar tareas complejas, pero aumentan los puntos de falla y el costo.","Empieza con pocos niveles y mucho registro (logs)."]
+};
+
+/* ---------- ESTADO ---------- */
+let got=new Set();
+const KEY='ia-quest-v1';
+try{const r=localStorage.getItem(KEY);if(r)got=new Set(JSON.parse(r))}catch(e){}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify([...got]))}catch(e){}};
+let doneM=new Set();const KEYM='ia-quest-m1';
+try{const r=localStorage.getItem(KEYM);if(r)doneM=new Set(JSON.parse(r))}catch(e){}
+const saveM=()=>{try{localStorage.setItem(KEYM,JSON.stringify([...doneM]))}catch(e){}};
+
+/* ---------- RENDER ---------- */
+const stars=(n,cls,label)=>`<span class="st ${cls}" aria-label="${label}: ${n} de 5"><b>${'★'.repeat(n)}</b><s>${'★'.repeat(5-n)}</s></span>`;
+const ALL=[]; // {id,xp,name}
+
+function card(o){
+  ALL.push(o);
+  const name=o.url?`<a href="${o.url}" target="_blank" rel="noopener">${o.name}</a>`:o.name;
+  const learn=o.learn?`<a class="learn" href="${o.learn[1]}" target="_blank" rel="noopener">📚 ${o.learn[0]}</a>`:'<span></span>';
+  return `<article class="item r-${o.rar}" data-id="${o.id}">
+    <button class="qm" data-q="${o.id}" aria-label="Más información sobre ${o.name}" title="Más información">?</button>
+    <div class="ico" aria-hidden="true">${o.emoji}</div>
+    <div class="body">
+      <h4>${name}</h4>
+      <span class="rar">${RARN[o.rar]} · ${o.tag} · +${o.xp} XP</span>
+      <p>${o.desc}</p>
+      <div class="stat"><span class="l">Dificultad</span>${stars(o.d,'d','Dificultad')}</div>
+      <div class="stat"><span class="l">Daño</span>${stars(o.x,'x','Daño')}</div>
+      <div class="row">${learn}<button class="take" data-id="${o.id}" aria-pressed="false">🎒 RECOGER</button></div>
+    </div></article>`;
+}
+
+const app=document.getElementById('app');
+let html='';
+
+// Aldea
+html+=`<section class="zone" id="aldea">
+ <div class="zone-head"><span class="ic">🏫</span><div><h2>Academia</h2><p>Aquí se aprende: toma los tomos de las academias y completa tus primeras misiones.</p></div><span class="prog" data-zone="aldea"></span></div>
+ <div class="sub-h">📚 TOMOS DE SABIDURÍA (ACADEMIAS)</div>
+ <div class="grid">${TOMES.map(t=>card({id:t[0],emoji:t[1],name:t[2],url:t[3],tag:t[4],d:t[5],x:t[6],desc:t[7],rar:'rare',xp:20})).join('')}</div>
+ ${missionsHTML('aldea')}
+</section>`;
+
+ZONES.forEach(z=>{
+  const tools=z.tools.map(t=>card({id:t[0],emoji:t[1],name:t[2],url:t[3],tag:t[4],d:t[5],x:t[6],desc:t[7],learn:t[8],rar:z.rar,xp:z.xp})).join('');
+  const half=Math.ceil(z.scrolls.length/2);
+  const scrolls=z.scrolls.map((s,i)=>card({id:z.id+'-s'+i,emoji:'📜',name:s[0],tag:'Pergamino',d:Math.min(5,z.baseD+(i>=half?1:0)),x:z.baseX,desc:s[1],rar:z.rar,xp:Math.round(z.xp/2)})).join('');
+  html+=`<section class="zone" id="${z.id}">
+   <div class="zone-head"><span class="ic">${z.icon}</span><div><h2>${z.name}</h2><p>${z.desc}</p></div><span class="prog" data-zone="${z.id}"></span></div>
+   <div class="sub-h">🎒 ÍTEMS · HERRAMIENTAS</div><div class="grid">${tools}</div>
+   <div class="sub-h">📜 PERGAMINOS · CONCEPTOS</div><div class="grid">${scrolls}</div>
+   ${missionsHTML(z.id)}
+  </section>`;
+});
+// Misiones secundarias
+html+=`<section class="zone" id="extra">
+ <div class="zone-head"><span class="ic">🧭</span><div><h2>Tablón de Misiones Secundarias</h2><p>Retos extra, sin orden fijo. Dan XP y una medalla especial si cumples todos.</p></div></div>
+ ${missionsHTML('extra','🧭 RETOS EXTRA · GANA LA MEDALLA DEL EXPLORADOR')}
+</section>`;
+
+// Final: el maestro
+html+=`<section class="zone" id="maestro">
+ <div class="zone-head"><span class="ic">🧙</span><div><h2>Santuario del Maestro</h2><p>Llegaste hasta aquí. Para seguir aprendiendo, habla con el mentor.</p></div></div>
+ <div class="npc" style="margin-top:18px"><div class="face" aria-hidden="true">🧑‍🏫</div><div>
+   <h3>Benja · @bencord</h3>
+   <p class="say">"Aquí no consumimos, creamos." Soy Benjamín Cordero y enseño en español a construir con IA: Claude Code, agentes, automatizaciones y vibe coding, con casos reales. Subo videos nuevos cada semana.</p>
+   <div class="chips"><span>Claude Code</span><span>Agentes</span><span>Automatizaciones</span><span>Vibe coding</span><span>Comunidad: Imperio Agéntico</span></div>
+   <a class="cta" href="https://www.youtube.com/@bencord" target="_blank" rel="noopener">▶ HABLAR CON EL MAESTRO</a>
+ </div></div>
+</section>`;
+app.innerHTML=html;
+document.getElementById('storyMain').innerHTML=storyHTML();
+
+/* ---------- LÓGICA ---------- */
+const byId=Object.fromEntries(ALL.map(o=>[o.id,o]));
+const $=id=>document.getElementById(id);
+const maxXP=ALL.reduce((a,o)=>a+o.xp,0);
+$('tot').textContent=ALL.length;
+
+function toast(msg){const t=$('toast');t.textContent=msg;t.classList.add('show');clearTimeout(toast.h);toast.h=setTimeout(()=>t.classList.remove('show'),1800)}
+const levelOf=xp=>Math.min(TITLES.length,1+Math.floor(xp/STEP));
+
+function paint(){
+  let xp=0;
+  document.querySelectorAll('.item').forEach(el=>{
+    const id=el.dataset.id,on=got.has(id);
+    el.classList.toggle('got',on);
+    const b=el.querySelector('.take');
+    b.setAttribute('aria-pressed',on);b.textContent=on?'✓ EN MOCHILA':'🎒 RECOGER';
+    if(on)xp+=byId[id].xp;
+  });
+  // misiones y medallas
+  let medals=0;const mh=[];
+  Object.entries(MEDALS).forEach(([z,M])=>{
+    let n=0;
+    M.missions.forEach((m,i)=>{
+      const id=z+'-m'+i,on=doneM.has(id),li=document.querySelector('.mission[data-m="'+id+'"]');
+      li.classList.toggle('done',on);
+      const b=li.querySelector('.mchk');b.setAttribute('aria-pressed',on);b.textContent=on?'✓':'';
+      if(on){n++;xp+=M.xp}
+    });
+    const earned=n===M.missions.length;
+    if(earned)medals++;
+    $('mc-'+z).classList.toggle('on',earned);
+    $('mp-'+z).textContent=earned?'¡MEDALLA CONSEGUIDA!':n+'/'+M.missions.length+' MISIONES';
+    mh.push(`<span class="md${earned?' on':''}" title="${M.name}${earned?' ✓':''}">${M.icon}</span>`);
+  });
+  $('medals').innerHTML=mh.join('');
+  const lv=levelOf(xp),maxed=lv>=TITLES.length;
+  $('lvl').textContent='NV '+lv;$('ttl').textContent=TITLES[lv-1];$('avatar').textContent=RANKS[lv-1].ic;
+  document.querySelectorAll('.rank').forEach((r,i)=>{r.classList.toggle('me',i===lv-1);r.classList.toggle('past',i<lv-1)});
+  $('cnt').textContent=got.size;
+  $('xptxt').textContent=xp+' XP';
+  let pct;
+  if(maxed){pct=100;$('nexttxt').textContent='¡NIVEL MÁXIMO!'}
+  else{const base=(lv-1)*STEP;pct=Math.round((xp-base)/STEP*100);$('nexttxt').textContent=(lv*STEP-xp)+' XP para NV '+(lv+1)}
+  $('xpfill').style.width=pct+'%';$('xpbar').setAttribute('aria-valuenow',pct);
+  document.querySelectorAll('.prog').forEach(p=>{
+    const z=p.dataset.zone;
+    const items=[...document.querySelectorAll(z==='aldea'?'#aldea .item':'#'+z+' .item')];
+    p.textContent=items.filter(i=>i.classList.contains('got')).length+'/'+items.length;
+  });
+  return {xp,lv,medals};
+}
+
+let cur=paint();
+function toggle(id){
+  const o=byId[id];
+  if(got.has(id)){got.delete(id);toast('Soltaste: '+o.name)}
+  else{got.add(id);toast('+'+o.xp+' XP · '+o.name+' recogido')}
+  save();
+  const prev=cur.lv;cur=paint();
+  if(cur.lv>prev)setTimeout(()=>toast('¡SUBISTE A NV '+cur.lv+'! '+TITLES[cur.lv-1].toUpperCase()),1900);
+}
+function toggleMission(id){
+  const z=id.split('-m')[0],M=MEDALS[z];
+  if(doneM.has(id)){doneM.delete(id);toast('Misión desmarcada')}
+  else{doneM.add(id);toast('+'+M.xp+' XP · ¡misión cumplida!')}
+  saveM();
+  const prev=cur;cur=paint();
+  if(cur.medals>prev.medals)setTimeout(()=>toast('🏅 ¡'+M.name.toUpperCase()+'!'),1900);
+  else if(cur.lv>prev.lv)setTimeout(()=>toast('¡SUBISTE A NV '+cur.lv+'! '+TITLES[cur.lv-1].toUpperCase()),1900);
+}
+const dlg=$('dlg');
+function openInfo(id){
+  const o=byId[id];if(!o)return;
+  const m=MORE[id]||[o.desc,'',''];
+  $('dlg-in').className='dlg-in r-'+o.rar;
+  $('dlg-ico').textContent=o.emoji;
+  $('dlg-t').textContent=o.name;
+  $('dlg-r').textContent=RARN[o.rar]+' · '+o.tag+' · +'+o.xp+' XP';
+  $('dlg-stats').innerHTML=`<div class="stat"><span class="l">Dificultad</span>${stars(o.d,'d','Dificultad')}</div><div class="stat"><span class="l">Daño</span>${stars(o.x,'x','Daño')}</div>`;
+  $('dlg-body').innerHTML=
+    `<div class="dsec"><h5>📖 QUÉ ES</h5><p>${m[0]}</p></div>`+
+    (m[1]?`<div class="dsec"><h5>🛠️ CÓMO SE USA</h5><p>${m[1]}</p></div>`:'')+
+    (m[2]?`<div class="dsec tip"><h5>💡 CONSEJO DEL MAESTRO</h5><p>${m[2]}</p></div>`:'');
+  const on=got.has(id);
+  $('dlg-act').innerHTML=
+    `<span>${o.url?`<a class="open" href="${o.url}" target="_blank" rel="noopener">🔗 Abrir sitio</a>`:''}${o.learn?` &nbsp; <a class="learn" href="${o.learn[1]}" target="_blank" rel="noopener">📚 ${o.learn[0]}</a>`:''}</span>`+
+    `<button class="take" data-id="${id}">${on?'✓ EN MOCHILA':'🎒 RECOGER'}</button>`;
+  dlg.showModal();
+}
+function onMain(e){
+  const q=e.target.closest('.qm');
+  if(q){openInfo(q.dataset.q);return}
+  const ch=e.target.closest('[data-open]');
+  if(ch){openInfo(ch.dataset.open);return}
+  const g=e.target.closest('[data-go]');
+  if(g){const el=document.getElementById(g.dataset.go);if(el&&el.scrollIntoView)el.scrollIntoView({behavior:'smooth',block:'start'});return}
+  const tg=e.target.closest('[data-tabgo]');
+  if(tg){showTab(tg.dataset.tabgo);return}
+  const mc=e.target.closest('.mchk');
+  if(mc){toggleMission(mc.dataset.m);return}
+  const b=e.target.closest('.take');if(!b)return;
+  toggle(b.dataset.id);
+}
+app.addEventListener('click',onMain);
+$('storyMain').addEventListener('click',onMain);
+$('dlg-act').addEventListener('click',e=>{
+  const b=e.target.closest('.take');if(!b)return;
+  toggle(b.dataset.id);
+  b.textContent=got.has(b.dataset.id)?'✓ EN MOCHILA':'🎒 RECOGER';
+});
+function showTab(t){
+  const st=t==='story';
+  $('app').hidden=st;$('zonenav').hidden=st;$('storyMain').hidden=!st;
+  document.querySelectorAll('.tab').forEach(b=>{const on=b.dataset.tab===t;b.classList.toggle('on',on);b.setAttribute('aria-selected',on)});
+  try{history.replaceState(null,'',st?'#historia':location.pathname+location.search)}catch(e){}
+  try{window.scrollTo(0,0)}catch(e){}
+}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>showTab(b.dataset.tab)));
+if(location.hash==='#historia')showTab('story');
+$('dlg-x').addEventListener('click',()=>dlg.close());
+dlg.addEventListener('click',e=>{if(e.target===dlg)dlg.close()});
+let resetTimer=null;
+$('reset').addEventListener('click',()=>{
+  if(!(got.size||doneM.size))return;
+  const b=$('reset');
+  if(b.dataset.arm==='1'){
+    clearTimeout(resetTimer);b.dataset.arm='';b.textContent='REINICIAR';
+    got.clear();doneM.clear();save();saveM();cur=paint();toast('Partida reiniciada');return;
+  }
+  b.dataset.arm='1';b.textContent='¿SEGURO? OTRA VEZ';
+  resetTimer=setTimeout(()=>{b.dataset.arm='';b.textContent='REINICIAR'},3500);
+});
+</script>
+</body>
+</html>
